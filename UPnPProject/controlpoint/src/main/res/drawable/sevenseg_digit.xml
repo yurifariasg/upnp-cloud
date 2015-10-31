@@ -1,0 +1,13 @@
+<level-list xmlns:android="http://schemas.android.com/apk/res/android">
+  <item android:maxLevel="0" android:drawable="@drawable/led_red_0" />
+  <item android:maxLevel="1" android:drawable="@drawable/led_red_1" />
+  <item android:maxLevel="2" android:drawable="@drawable/led_red_2" />
+  <item android:maxLevel="3" android:drawable="@drawable/led_red_3" />
+  <item android:maxLevel="4" android:drawable="@drawable/led_red_4" />
+  <item android:maxLevel="5" android:drawable="@drawable/led_red_5" />
+  <item android:maxLevel="6" android:drawable="@drawable/led_red_6" />
+  <item android:maxLevel="7" android:drawable="@drawable/led_red_7" />
+  <item android:maxLevel="8" android:drawable="@drawable/led_red_8" />
+  <item android:maxLevel="9" android:drawable="@drawable/led_red_9" />
+  <item android:maxLevel="10" android:drawable="@drawable/led_red_off" />
+ </level-list>

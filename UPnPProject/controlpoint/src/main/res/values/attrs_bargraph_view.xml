@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BargraphView">
+        <!-- Bargraph orientation -->
+        <attr name="orientation">
+             <enum name="horizontal" value="0" />
+             <enum name="vertical" value="1" />
+        </attr>
+        <!-- number of leds in the bargraph -->
+        <attr name="numberOfLeds" format="integer" />
+        <!-- led sizes in the bargraph -->
+        <attr name="ledWidth" format="dimension" />
+        <attr name="ledHeight" format="dimension" />
+        <attr name="ledSpacing" format="dimension" />
+        <!-- rounded corners for leds -->
+        <attr name="ledCornerRadius" format="float" />
+    </declare-styleable>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="led_colors_on">
+        <item>#FF90BD2A</item>
+        <item>#FFAEC020</item>
+        <item>#FFD0C020</item>
+        <item>#FFEBC020</item>
+        <item>#FFFCC020</item>
+        
+        <item>#FFFEB027</item>
+        <item>#FFFC9030</item>
+        <item>#FFEC5D36</item>
+        <item>#FFDB343D</item>
+        <item>#FFC30020</item>
+    </array>
+     <array name="led_colors_off">
+        <item>#FFFFFFFF</item>
+    </array>
+</resources>

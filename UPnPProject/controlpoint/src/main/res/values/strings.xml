@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">FridgeControlPoint</string>
+	<string name="dialog_title_devices">Sensor Management Devices</string>
+	<string name="configuration_dialog_title">Associated settings</string>
+    <string name="ok">OK</string>
+    <string name="search">Search</string>
+    <string name="cancel">Cancel</string>
+    <string name="about">About</string>
+    <string name="not_found">Fridge device not found</string>
+</resources>
