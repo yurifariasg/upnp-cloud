@@ -342,7 +342,6 @@ public class MainActivity extends ActivityWithBusDeliverer implements Callback{
                         		data.getServer(), 
                         		data.getPort(),
                         		data.getPubsub(),
-                        		data.getUuid(),
                         		data.getControlPointName()
                         	));
             }

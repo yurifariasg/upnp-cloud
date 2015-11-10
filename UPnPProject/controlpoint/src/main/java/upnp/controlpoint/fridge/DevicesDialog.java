@@ -185,11 +185,14 @@ public class DevicesDialog extends DialogFragment implements UPnPDeviceListListe
 	public void onDeviceListChanged() {
 		
 		Log.d(TAG,"Discovered Devices list changed");
-		
-		mDevices = ((FridgeApplication) (getActivity().getApplication())).getDiscoveredDevices();
-		
-		//update the list in the fragment
-		getActivity().runOnUiThread(mDeviceListChangedRunnable);
+		final Activity activity = getActivity();
+		if (activity != null) {
+			FridgeApplication application = ((FridgeApplication) (activity.getApplication()));
+			mDevices = application.getDiscoveredDevices();
+//
+			//update the list in the fragment
+			activity.runOnUiThread(mDeviceListChangedRunnable);
+		}
 	}
 	
 	/* The activity that creates an instance of this dialog fragment must

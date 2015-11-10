@@ -73,7 +73,7 @@ public class CLPacketListener implements PacketListenerWithFilter {
             SoapRequestIQ iq = (SoapRequestIQ) packet;
             Log.i("CLPacketListener", "" + iq);
             final String serviceId = iq.getServiceType();
-            LocalDevice device = MainActivity.BinaryLightDevice;
+            LocalDevice device = MainActivity.MainDevice;
 
             LocalService localService = device.findService(
                     ServiceId.valueOf(serviceId));

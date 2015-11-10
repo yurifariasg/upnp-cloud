@@ -40,17 +40,15 @@ public class XmppConnectionOpenRequestEvent {
     private final String hostname;
     private final int port;
     private final String pubsubService;
-    private final String uuid;
     private final String cpName;
 
-    public XmppConnectionOpenRequestEvent(String login, String password, String hostname, int port,String pubsubService,String uuid, String cpName) {
+    public XmppConnectionOpenRequestEvent(String login, String password, String hostname, int port,String pubsubService, String cpName) {
         super();
         this.login = login;
         this.password = password;
         this.hostname = hostname;
         this.port = port;
         this.pubsubService = pubsubService;
-        this.uuid = uuid;
         this.cpName = cpName;
     }
 
@@ -72,10 +70,6 @@ public class XmppConnectionOpenRequestEvent {
     
     public String getPubsubService(){
         return pubsubService;
-    }
-    
-    public String getUuid(){
-    	return uuid;
     }
     
     public String getControlPointName(){

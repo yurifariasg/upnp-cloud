@@ -229,7 +229,6 @@ public class LocalUpnpService extends AndroidUpnpServiceImpl implements SensorPo
         			mSensorPooling.addSensor((Sensor) model);
         		}
     		}
-    		
     	}
     }
 

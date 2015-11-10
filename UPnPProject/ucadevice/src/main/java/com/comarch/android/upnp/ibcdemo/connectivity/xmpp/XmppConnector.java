@@ -33,10 +33,9 @@
 package com.comarch.android.upnp.ibcdemo.connectivity.xmpp;
 
 import android.content.Context;
-import android.content.res.XmlResourceParser;
 import android.util.Log;
 
-import com.comarch.android.upnp.ibcdemo.R;
+import com.comarch.android.upnp.ibcdemo.MainActivity;
 import com.comarch.android.upnp.ibcdemo.busevent.ConnectionStateChangedEvent.ConnectionState;
 import com.comarch.android.upnp.ibcdemo.busevent.ControlPointNameChanged;
 import com.comarch.android.upnp.ibcdemo.busevent.DeviceListRefreshRequestEvent;
@@ -75,6 +74,8 @@ import com.comarch.android.upnp.ibcdemo.model.Sensor;
 import com.comarch.android.upnp.ibcdemo.model.SourcedDeviceUpnp;
 import com.google.common.collect.Lists;
 
+import org.fourthline.cling.model.Namespace;
+import org.fourthline.cling.model.profile.RemoteClientInfo;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.XMPPConnection;
@@ -85,11 +86,6 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.provider.ProviderManager;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -129,7 +125,6 @@ SensorPoolingObserver {
         super();
         this.bus = bus;
         this.mContext = ctx;
-        Log.i(TAG,"XmppConnector start");
         SmackAndroid.init(ctx);
         XMPPConnection.DEBUG_ENABLED = true;
         bus.postSticky(new XmppConnectionStateChangedEvent(ConnectionState.DISCONNECTED));
@@ -154,27 +149,15 @@ SensorPoolingObserver {
     }
 
     private String getDeviceDetails() {
-        BufferedReader bufferedInputStream = null;
         try {
-            bufferedInputStream = new BufferedReader(new InputStreamReader(
-                    mContext.getResources().getAssets().open("device.xml")));
-            StringBuilder builder = new StringBuilder();
-            String line;
-            while ((line = bufferedInputStream.readLine()) != null) {
-                builder.append(line.trim());
-            }
-            return builder.toString();
-        } catch (IOException exception) {
-
-        } finally {
-            if (bufferedInputStream != null) {
-                try {
-                    bufferedInputStream.close();
-                } catch (IOException e) {
-                }
-            }
+            String str = MainActivity.upnpService.getConfiguration()
+                    .getDeviceDescriptorBinderUDA10().generate(MainActivity.MainDevice,
+                            new RemoteClientInfo(), new Namespace(""));
+            return str.substring(55);
+        } catch (Exception e) {
+            Log.e("XmppConnector", "Exception while parsing device.", e);
+            return null;
         }
-        return null;
     }
 
     public boolean isReconnectionAllowed(){
@@ -191,7 +174,7 @@ SensorPoolingObserver {
     }
     public void onEvent(XmppConnectionOpenRequestEvent event) {
         Log.i("XmppConnector", "onEvent: XmppConnectionOpenRequestEvent");
-        login(event.getLogin(), event.getPassword(), event.getHostname(), event.getPort(),event.getPubsubService(),event.getUuid(),event.getControlPointName());
+        login(event.getLogin(), event.getPassword(), event.getHostname(), event.getPort(),event.getPubsubService(),event.getControlPointName());
     }
 
     public void onEvent(XmppConnectionCloseRequestEvent event) {
@@ -258,7 +241,7 @@ SensorPoolingObserver {
         connection.sendPacket(iq);
     }
 
-    public void login(final String login, final String password, final String hostname, final int port,final String pubsub,final String uuid, final String cpName) {
+    public void login(final String login, final String password, final String hostname, final int port,final String pubsub, final String cpName) {
         addTask(new Runnable() {
             @Override
             public void run() {
@@ -287,7 +270,7 @@ SensorPoolingObserver {
 
                     if (connection.isConnected() && !connection.isAuthenticated()) {
                         reconnectionAllowed = true;
-                        resource = createNewResourceString(uuid);
+                        resource = createNewResourceString();
                         fullJid = login + "/" + resource;
                     	connection.login(userName, password, resource);
 
@@ -336,9 +319,9 @@ SensorPoolingObserver {
         }
     }
     
-    private static String createNewResourceString(String uuid) {
-    	return "urn:schemas-upnp-org:device:DimmableLight:1:uuid:6eaa4ac9-9536-441e-853f-9adde05d6166";
-    	//"urn:schemas-upnp-org:cloud-1-0:ControlPoint:1:" + uuid;
+    private static String createNewResourceString() {
+    	return MainActivity.MainDevice.getType().toString() + ":"
+                + MainActivity.MainDevice.getIdentity().getUdn();
     }
     
     public boolean addPacketListener(PacketListenerWithFilter pfwl){

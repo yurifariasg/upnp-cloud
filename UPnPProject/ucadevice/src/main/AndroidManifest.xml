@@ -25,6 +25,10 @@
 
         <service android:name="org.fourthline.cling.android.AndroidUpnpServiceImpl"/>
         <service android:name="com.comarch.android.upnp.ibcdemo.connectivity.ConnectivityService" />
+        <service android:name="com.tpvision.sensormgt.devicelib.SensorMgtService"
+            android:exported="true" />
+        <provider android:name="com.tpvision.sensormgt.datastore.database.DataStoreProvider"
+            android:authorities="com.tpvision.sensormgt.datastore"/>
 
     </application>
 

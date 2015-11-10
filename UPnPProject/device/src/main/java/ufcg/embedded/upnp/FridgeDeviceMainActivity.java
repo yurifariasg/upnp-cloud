@@ -155,7 +155,7 @@ public class FridgeDeviceMainActivity extends Activity implements SensorReadList
 			Log.i("udn","old udn: "+udn.toString() );
 		} else {
 			//we need to generate a udn and store it
-			udn = new UDN(UUID.randomUUID());	
+			udn = new UDN(UUID.randomUUID());
 			Log.i("udn","new udn: "+udn.toString() );
 			SharedPreferences.Editor editor = prefs.edit();
 		    editor.putString("UDN", udn.getIdentifierString());
@@ -259,7 +259,7 @@ public class FridgeDeviceMainActivity extends Activity implements SensorReadList
 	/**
 	 * This is where the sensor network is initialised, the datamodel, is read,
 	 * the device info is read, and sensors are created
-	 * 
+	 *
 	 */
 	private void setupSensorNetwork() {
 
@@ -313,7 +313,7 @@ public class FridgeDeviceMainActivity extends Activity implements SensorReadList
 		dataItemList.add(mStatusInterval);
 		
 		dataItemList.add(mClientID);
-		
+
 
 		mDatamodelInterface = new DatamodelInterfaceImpl(Datamodel.inflateDatamodelTree(Datamodel.mDatamodelDefinition), instanceTree, dataItemList);
 
