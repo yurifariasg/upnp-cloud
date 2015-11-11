@@ -49,6 +49,7 @@ import org.fourthline.cling.model.meta.ActionArgument;
 import org.fourthline.cling.model.meta.LocalDevice;
 import org.fourthline.cling.model.meta.LocalService;
 import org.fourthline.cling.model.meta.StateVariable;
+import org.fourthline.cling.model.state.StateVariableAccessor;
 import org.fourthline.cling.model.types.ServiceId;
 import org.jivesoftware.smack.packet.Packet;
 
@@ -56,15 +57,27 @@ import java.util.HashMap;
 
 public class CLPacketListener implements PacketListenerWithFilter {
 
+    public static CLPacketListener MainListener;
+
     protected XmppConnector connector;
     
     public CLPacketListener(XmppConnector connector){
         this.connector = connector;
+        MainListener = this;
     }
     
     @Override
     public void processPacket(Packet packet) {
-        Log.d("MySuperPacketListener", packet.toXML());
+        try {
+            processPacketSecurely(packet);
+        } catch (Exception e) {
+            Log.e("CLPacketListener", "Exception occurred...", e);
+        }
+    }
+
+    private void processPacketSecurely(Packet packet) {
+
+        Log.d("MySuperPacketListener", "" + packet.toXML());
 
         if (packet instanceof SoapResponseIQ) {
             SoapResponseIQ iq = (SoapResponseIQ) packet;
@@ -85,6 +98,8 @@ public class CLPacketListener implements PacketListenerWithFilter {
                 return;
             }
             final Action action = localService.getAction(iq.getActionName());
+            ActionArgument[] outputArgs = action.getOutputArguments();
+            ActionInvocation invokation = null;
 
             if (iq.getArguments().isEmpty()) {
                 localService.getExecutor(action).execute(new ActionInvocation<>(action));
@@ -101,34 +116,50 @@ public class CLPacketListener implements PacketListenerWithFilter {
                     }
                 }
 
-                localService.getExecutor(action).execute(new ActionInvocation<>(action, args));
-            }
+                Log.i("ProcessSoapResponseIQ", "Invoking action...");
 
-            ActionArgument[] arguments = action.getOutputArguments();
+                invokation = new ActionInvocation(action, args);
+                localService.getExecutor(action).execute(invokation);
+            }
             final HashMap<String, String> args = new HashMap<>();
 
-            for (int i = 0 ; i < arguments.length ; i++) {
-                StateVariable variable = localService.getRelatedStateVariable(arguments[i]);
-                Log.i("ProcessSoapResponseIQ", "Argument: " + arguments[i].getName());
-                try {
+            ActionArgumentValue[] output = invokation.getOutput();
+            for (int i = 0 ; i < output.length ; i++) {
+                Object value = output[i].getValue();
 
-                    Object value = localService.getAccessor(variable)
-                            .read(localService.getManager().getImplementation());
-
-                    if (value instanceof Boolean) {
-                        if ((Boolean) value == true) {
-                            args.put(arguments[i].getName(), "1");
-                        } else {
-                            args.put(arguments[i].getName(), "0");
-                        }
+                if (value instanceof Boolean) {
+                    if ((Boolean) value == true) {
+                        args.put(output[i].getArgument().getName(), "1");
                     } else {
-                        args.put(arguments[i].getName(), String.valueOf(value));
+                        args.put(output[i].getArgument().getName(), "0");
                     }
-
-                } catch (Exception e) {
-                    Log.e("ProcessSoapResponseIQ", "Except..", e);
+                } else {
+                    args.put(output[i].getArgument().getName(), String.valueOf(value));
                 }
             }
+
+//            for (int i = 0 ; i < outputArgs.length ; i++) {
+//                StateVariable variable = localService.getRelatedStateVariable(outputArgs[i]);
+//                Log.i("ProcessSoapResponseIQ", "Argument: " + outputArgs[i].getName() + " has variable? " + (variable != null));
+//                try {
+//
+//                    StateVariableAccessor acessor = localService.getAccessor(variable);
+//                    Object value = acessor.read(localService.getManager().getImplementation());
+//
+//                    if (value instanceof Boolean) {
+//                        if ((Boolean) value == true) {
+//                            args.put(outputArgs[i].getName(), "1");
+//                        } else {
+//                            args.put(outputArgs[i].getName(), "0");
+//                        }
+//                    } else {
+//                        args.put(outputArgs[i].getName(), String.valueOf(value));
+//                    }
+//
+//                } catch (Exception e) {
+//                    Log.e("ProcessSoapResponseIQ", "Exception...", e);
+//                }
+//            }
 
             SoapResultRequestIQ sendPacket = new SoapResultRequestIQ(action.getName() + "Result", iq.getActionName(), args);
             sendPacket.setTo(packet.getFrom());
@@ -146,8 +177,6 @@ public class CLPacketListener implements PacketListenerWithFilter {
             Log.i("CLPacketListener", "Unknown Packet: " + packet);
         }
     }
-
-
 
     @Override
     public boolean accept(Packet packet) {

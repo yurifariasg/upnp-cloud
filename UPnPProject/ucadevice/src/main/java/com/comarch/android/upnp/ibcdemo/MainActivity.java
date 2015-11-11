@@ -322,8 +322,7 @@ public class MainActivity extends ActivityWithBusDeliverer implements PropertyCh
 
         List<DataItem> dataItemList = new ArrayList<DataItem>();
 
-//        String urn = "urn:upnp-org:smgt-surn:refrigerator:AcmeSensorsCorp-com:AcmeIntegratedController:FrigidaireCorp:rf217acrs:monitor";
-        String urn = "urn:schemas-upnp-org:device:SensorManagement:1";
+        String urn = "urn:upnp-org:smgt-surn:refrigerator:AcmeSensorsCorp-com:AcmeIntegratedController:FrigidaireCorp:rf217acrs:monitor";
 
         DataItem mAccumulatedPowerUsed = new DataItem("SensorCollection0001", "Sensor0001", urn, "AccumulatedPowerUsed");
         mAccumulatedPowerUsed.setSensorValue("50");
@@ -386,8 +385,6 @@ public class MainActivity extends ActivityWithBusDeliverer implements PropertyCh
 
     }
 
-
-
     //starting the android service when the activity becomes visible
     @Override
     protected void onStart() {
@@ -397,8 +394,9 @@ public class MainActivity extends ActivityWithBusDeliverer implements PropertyCh
     }
 
     @Override
-    public void onDeviceChanged(LocalDevice localDevice) {
+    public void onDeviceChanged(LocalDevice localDevice, AndroidUpnpService service) {
         MainDevice = localDevice;
+        upnpService = service;
         if (localDevice != null) {
             startXMPP();
         }

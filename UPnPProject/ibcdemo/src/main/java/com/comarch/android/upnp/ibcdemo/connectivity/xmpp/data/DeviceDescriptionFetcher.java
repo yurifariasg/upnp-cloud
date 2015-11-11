@@ -76,7 +76,7 @@ public class DeviceDescriptionFetcher extends CommonSensorFactory implements Pac
     public DeviceDescriptionFetcher(XmppConnector connector, DeviceDescription device){
         this.connector = connector;
         finished = false;
-        sentSoapIds = new HashMap<String, String>();
+        sentSoapIds = new HashMap<>();
         this.description = device;
     }
     

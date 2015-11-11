@@ -32,6 +32,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
  */
 
 
+import android.util.Log;
+
+import com.tpvision.sensormgt.datamodel.DatamodelNode.NodeType;
+import com.tpvision.sensormgt.sensormodel.DataItemInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,11 +44,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-
-import com.tpvision.sensormgt.datamodel.DatamodelNode.NodeType;
-import com.tpvision.sensormgt.sensormodel.DataItemInfo;
-
-import android.util.Log;
 
 public class DatamodelInterfaceImpl implements DatamodelInterface {
 

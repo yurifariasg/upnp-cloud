@@ -105,7 +105,7 @@ public class ConfigurationManagement {
      */
     public void sendInitialEvents() {
     	
-    	Log.i(TAG, "Sending initial events");
+//    	Log.i(TAG, "Sending initial events");
     	
     	mTimerTask.cancel();
 		mTimerTask = new EventTimerTask();

@@ -31,9 +31,9 @@ package com.tpvision.sensormgt.datamodel;
 
 public class DebugDatamodel {
 	
-	public final static boolean DEBUG_DATAMODEL=true;
-	public final static boolean DEBUG_XML=false;
+	public final static boolean DEBUG_DATAMODEL=false;
+	public final static boolean DEBUG_XML=true;
 	public final static boolean DEBUG_UPNP=true;
 	public final static boolean DEBUG_UPNP_INTERNAL=false;
-	public final static boolean DEBUG_EVENTING=true;
+	public final static boolean DEBUG_EVENTING=false;
 }

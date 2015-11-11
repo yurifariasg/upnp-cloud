@@ -38,23 +38,10 @@ package com.comarch.android.upnp.ibcdemo.connectivity.xmpp.providers;
 import android.util.Log;
 
 import com.comarch.android.upnp.ibcdemo.DOM2XmlPullBuilder;
-import com.comarch.android.upnp.ibcdemo.MainActivity;
+import com.comarch.android.upnp.ibcdemo.connectivity.xmpp.listeners.CLPacketListener;
 import com.comarch.android.upnp.ibcdemo.connectivity.xmpp.packet.SoapRequestIQ;
 import com.comarch.android.upnp.ibcdemo.connectivity.xmpp.packet.SoapResponseIQ;
 
-import org.fourthline.cling.model.action.ActionArgumentValue;
-import org.fourthline.cling.model.action.ActionInvocation;
-import org.fourthline.cling.model.message.StreamRequestMessage;
-import org.fourthline.cling.model.message.StreamResponseMessage;
-import org.fourthline.cling.model.message.UpnpRequest;
-import org.fourthline.cling.model.message.UpnpResponse;
-import org.fourthline.cling.model.message.control.ActionRequestMessage;
-import org.fourthline.cling.model.message.control.ActionResponseMessage;
-import org.fourthline.cling.model.message.control.IncomingActionRequestMessage;
-import org.fourthline.cling.model.message.control.IncomingActionResponseMessage;
-import org.fourthline.cling.model.meta.ActionArgument;
-import org.fourthline.cling.model.meta.LocalService;
-import org.fourthline.cling.model.types.ServiceId;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.w3c.dom.Element;
@@ -62,14 +49,9 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
-import org.fourthline.cling.model.meta.Action;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -84,39 +66,46 @@ public class SOAPProvider implements IQProvider {
     public static final String NAMESPACE = "http://schemas.xmlsoap.org/soap/envelope/";
 
 	@Override
-	public IQ parseIQ(XmlPullParser parser) throws Exception {
-        boolean stop = false;
-        String name = null;
-        IQ iq = null;
+	public IQ parseIQ(XmlPullParser parser) {
+        try {
+            boolean stop = false;
+            String name = null;
+            IQ iq = null;
 
-        while(false == stop)
-        {
-            name = parser.getName();
-            switch (parser.getEventType())
-            {
-                case XmlPullParser.START_TAG:
-                {
-                    if(ELEMENT_NAME.equals(name))
-                    {
-                        iq = parseSoap(parser);
-                        stop = true;
+            DOM2XmlPullBuilder dom2XmlPullBuilder = new DOM2XmlPullBuilder();
+            Element element = dom2XmlPullBuilder.parseSubTree(parser);
+            String soapMsg = convertNodeToString(element); // implement using a Transformer
+            Log.i("parseIQ", soapMsg);
+            parser.setInput(new StringReader(soapMsg));
+
+            while (false == stop) {
+                name = parser.getName();
+                switch (parser.getEventType()) {
+                    case XmlPullParser.START_TAG: {
+                        if (ELEMENT_NAME.equals(name)) {
+                            iq = parseSoap(parser);
+                            stop = true;
+                        }
+
+                        break;
                     }
+                    case XmlPullParser.END_TAG: {
+                        stop = ELEMENT_NAME.equals(name);
+                        break;
+                    }
+                }
+                if (!stop) {
+                    parser.next();
+                }
+            }
 
-                    break;
-                }
-                case XmlPullParser.END_TAG:
-                {
-                    stop = ELEMENT_NAME.equals(name);
-                    break;
-                }
-            }
-            if(!stop){
-                parser.next();
-            }
+            name = null;
+            return iq;
+        } catch (Exception e) {
+            Log.i("SOAPProvider", "Reaching this part of code...");
+            Log.e("SOAPProvider", "Exception.", e);
+            return null;
         }
-
-        name = null;
-        return iq;
 	}
 	
 	private static final String extractActionName(final String responseTag) {
@@ -139,10 +128,6 @@ public class SOAPProvider implements IQProvider {
     }
 	
 	public IQ parseSoap(XmlPullParser parser) throws Exception {
-
-//        DOM2XmlPullBuilder dom2XmlPullBuilder = new DOM2XmlPullBuilder();
-//        Element element = dom2XmlPullBuilder.parseSubTree(parser);
-//        String soapMsg = convertNodeToString(element); // implement using a Transformer
 
         boolean isResponse = false;
         String actionName = null;
@@ -186,7 +171,7 @@ public class SOAPProvider implements IQProvider {
         if (isResponse) {
             return new SoapResponseIQ(actionName, arguments);
         } else {
-            int commaIndex = serviceType.lastIndexOf(":");
+            int commaIndex = serviceType != null ? serviceType.lastIndexOf(":") : -1;
             if (commaIndex != -1) {
                 return new SoapRequestIQ(actionName, serviceType.substring(0, commaIndex), arguments);
             } else {

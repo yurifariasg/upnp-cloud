@@ -80,6 +80,7 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.android.AndroidSmackInitializer;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
@@ -126,7 +127,7 @@ SensorPoolingObserver {
         this.bus = bus;
         this.mContext = ctx;
         SmackAndroid.init(ctx);
-        XMPPConnection.DEBUG_ENABLED = true;
+//        XMPPConnection.DEBUG_ENABLED = true;
         bus.postSticky(new XmppConnectionStateChangedEvent(ConnectionState.DISCONNECTED));
         
         ProviderManager providers = ProviderManager.getInstance();

@@ -97,10 +97,10 @@ public class ClingUPnPInit implements ServiceConnection,ConfigurationUpdateListe
 	private DataStoreWebServer mServer;
 
 	//	Properties that can be set before start is called.
-	public String deviceFriendlyName = "Sensor Management Device";
-	public String deviceManufacturer = "Gerhard";
+	public String deviceFriendlyName = "The Sensor Light";
+	public String deviceManufacturer = "Comarch";
 	//	public String deviceManufacturerURI = "";
-	public String deviceModelName = "Sensor Management Device.";
+	public String deviceModelName = "Sensor Dimmable Light";
 	public String deviceModelDescription = "v1";
 	//	public String deviceModelNumber;
     //	private URI deviceModelURI;
@@ -198,7 +198,7 @@ public class ClingUPnPInit implements ServiceConnection,ConfigurationUpdateListe
 			//	Toast.makeText(FridgeDeviceMainActivity.this, R.string.registeringDevice, Toast.LENGTH_SHORT).show();
 				mUPnPService.getRegistry().addDevice(sensorMgtDevice);
 				if (mListener != null) {
-					mListener.onDeviceChanged(sensorMgtDevice);
+					mListener.onDeviceChanged(sensorMgtDevice, mUPnPService);
 				}
 
 				configurationManagementService = getConfigurationManagementService();

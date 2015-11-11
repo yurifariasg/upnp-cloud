@@ -53,8 +53,6 @@ public class UPNPQueryProvider implements IQProvider {
 
     public static final String ELEMENT_NAME = "query";
     public static final String NAMESPACE = "urn:schemas-upnp-org:cloud-1-0";
-
-
     
     @Override
     public IQ parseIQ(XmlPullParser parser) throws Exception {
