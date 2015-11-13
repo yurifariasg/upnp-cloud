@@ -80,7 +80,6 @@ import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.SmackAndroid;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
-import org.jivesoftware.smack.android.AndroidSmackInitializer;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
@@ -127,7 +126,7 @@ SensorPoolingObserver {
         this.bus = bus;
         this.mContext = ctx;
         SmackAndroid.init(ctx);
-//        XMPPConnection.DEBUG_ENABLED = true;
+        XMPPConnection.DEBUG_ENABLED = true;
         bus.postSticky(new XmppConnectionStateChangedEvent(ConnectionState.DISCONNECTED));
         
         ProviderManager providers = ProviderManager.getInstance();
@@ -164,7 +163,7 @@ SensorPoolingObserver {
     public boolean isReconnectionAllowed(){
         return reconnectionAllowed;
     }
-    public void onEvent(XmppSendChatMessageEvent event){
+    public void onEvent(XmppSendChatMessageEvent event) {
         Log.i("XmppConnector", "onEvent: XmppSendChatMessageEvent");
     	if(connection!=null && connection.isConnected()){
     		Message message = new Message();
@@ -202,7 +201,7 @@ SensorPoolingObserver {
         }
     }
     
-    public void onEvent(XmppServiceActionEvent event){
+    public void onEvent(XmppServiceActionEvent event) {
         Log.i("XmppConnector", "onEvent: XmppServiceActionEvent");
         SoapRequestIQ request = new SoapRequestIQ(event.getActionName(),event.getServiceName(),event.getArgs());
         request.setTo(event.getDevice().getDescription().getJid());
@@ -211,7 +210,7 @@ SensorPoolingObserver {
         }
         connection.sendPacket(request);
     }
-    public void onEvent(final XmppMediaServerBrowseEvent event) throws InterruptedException{
+    public void onEvent(final XmppMediaServerBrowseEvent event) throws InterruptedException {
         Log.i("XmppConnector", "onEvent: XmppMediaServerBrowseEvent");
         Map<String,String> args = new HashMap<String,String>();
         args.put("ObjectID", event.getDirectoryId());
@@ -225,7 +224,7 @@ SensorPoolingObserver {
         connection.sendPacket(request);
     }
     
-    public void onEvent(ControlPointNameChanged event){
+    public void onEvent(ControlPointNameChanged event) {
         Log.i("XmppConnector", "onEvent: ControlPointNameChanged");
     	if(connection!=null && connection.isConnected()){
             Presence p = new Presence(Presence.Type.available, event.getName(), 42, Mode.available);

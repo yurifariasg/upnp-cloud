@@ -138,30 +138,8 @@ public class CLPacketListener implements PacketListenerWithFilter {
                 }
             }
 
-//            for (int i = 0 ; i < outputArgs.length ; i++) {
-//                StateVariable variable = localService.getRelatedStateVariable(outputArgs[i]);
-//                Log.i("ProcessSoapResponseIQ", "Argument: " + outputArgs[i].getName() + " has variable? " + (variable != null));
-//                try {
-//
-//                    StateVariableAccessor acessor = localService.getAccessor(variable);
-//                    Object value = acessor.read(localService.getManager().getImplementation());
-//
-//                    if (value instanceof Boolean) {
-//                        if ((Boolean) value == true) {
-//                            args.put(outputArgs[i].getName(), "1");
-//                        } else {
-//                            args.put(outputArgs[i].getName(), "0");
-//                        }
-//                    } else {
-//                        args.put(outputArgs[i].getName(), String.valueOf(value));
-//                    }
-//
-//                } catch (Exception e) {
-//                    Log.e("ProcessSoapResponseIQ", "Exception...", e);
-//                }
-//            }
-
-            SoapResultRequestIQ sendPacket = new SoapResultRequestIQ(action.getName() + "Result", iq.getActionName(), args);
+            SoapResultRequestIQ sendPacket = new SoapResultRequestIQ(action.getName() + "Response", iq.getActionName(), args);
+            sendPacket.setPacketID(packet.getPacketID());
             sendPacket.setTo(packet.getFrom());
             sendPacket.setFrom(packet.getTo());
             connector.sendPacket(sendPacket);

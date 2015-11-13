@@ -1,11 +1,6 @@
 package com.comarch.android.upnp.ibcdemo;
 
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,7 +30,6 @@ import com.tpvision.sensormgt.datastore.DataStoreInterfaceImpl;
 import com.tpvision.sensormgt.devicelib.ClingUPnPInit;
 
 import org.fourthline.cling.android.AndroidUpnpService;
-import org.fourthline.cling.android.AndroidUpnpServiceImpl;
 import org.fourthline.cling.binding.LocalServiceBindingException;
 import org.fourthline.cling.binding.annotations.AnnotationLocalServiceBinder;
 import org.fourthline.cling.model.DefaultServiceManager;
@@ -56,7 +50,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 
 public class MainActivity extends ActivityWithBusDeliverer implements PropertyChangeListener,
@@ -320,7 +313,7 @@ public class MainActivity extends ActivityWithBusDeliverer implements PropertyCh
         instanceTree.addChildNode(child);
         DeviceParser.parse(getResources().openRawResource(R.raw.sensor_config), child);
 
-        List<DataItem> dataItemList = new ArrayList<DataItem>();
+        List<DataItem> dataItemList = new ArrayList<>();
 
         String urn = "urn:upnp-org:smgt-surn:refrigerator:AcmeSensorsCorp-com:AcmeIntegratedController:FrigidaireCorp:rf217acrs:monitor";
 

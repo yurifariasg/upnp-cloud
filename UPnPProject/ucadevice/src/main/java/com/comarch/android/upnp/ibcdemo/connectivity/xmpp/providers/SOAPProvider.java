@@ -72,11 +72,11 @@ public class SOAPProvider implements IQProvider {
             String name = null;
             IQ iq = null;
 
-            DOM2XmlPullBuilder dom2XmlPullBuilder = new DOM2XmlPullBuilder();
-            Element element = dom2XmlPullBuilder.parseSubTree(parser);
-            String soapMsg = convertNodeToString(element); // implement using a Transformer
-            Log.i("parseIQ", soapMsg);
-            parser.setInput(new StringReader(soapMsg));
+//            DOM2XmlPullBuilder dom2XmlPullBuilder = new DOM2XmlPullBuilder();
+//            Element element = dom2XmlPullBuilder.parseSubTree(parser);
+//            String soapMsg = convertNodeToString(element); // implement using a Transformer
+//            Log.i("parseIQ", soapMsg);
+//            parser.setInput(new StringReader(soapMsg));
 
             while (false == stop) {
                 name = parser.getName();

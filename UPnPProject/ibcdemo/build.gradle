@@ -20,7 +20,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'org.fourthline.cling:cling-core:2.0-SNAPSHOT'
@@ -30,4 +30,5 @@ dependencies {
     compile 'org.eclipse.jetty:jetty-client:8.1.8.v20121106'
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'com.google.guava:guava:18.0'
+    compile project(':asmack')
 }

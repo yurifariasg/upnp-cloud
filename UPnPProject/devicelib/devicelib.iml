@@ -90,14 +90,15 @@
     <orderEntry type="jdk" jdkName="Android API 23 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="cling-core-2.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" exported="" name="eventbus-2.4.0" level="project" />
     <orderEntry type="library" exported="" name="javax.servlet-3.0.0.v201112011016" level="project" />
     <orderEntry type="library" exported="" name="jetty-client-8.1.8.v20121106" level="project" />
     <orderEntry type="library" exported="" name="seamless-http-1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" exported="" name="seamless-xml-1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" exported="" name="jetty-util-8.1.8.v20121106" level="project" />
+    <orderEntry type="library" exported="" name="jetty-security-8.1.8.v20121106" level="project" />
     <orderEntry type="library" exported="" name="seamless-util-1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" exported="" name="jetty-http-8.1.8.v20121106" level="project" />
-    <orderEntry type="library" exported="" name="jetty-security-8.1.8.v20121106" level="project" />
     <orderEntry type="library" exported="" name="jetty-io-8.1.8.v20121106" level="project" />
     <orderEntry type="library" exported="" name="jetty-continuation-8.1.8.v20121106" level="project" />
     <orderEntry type="library" exported="" name="commons-lang3-3.4" level="project" />
@@ -106,5 +107,6 @@
     <orderEntry type="library" exported="" name="support-v4-23.1.0" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-23.1.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-23.1.0" level="project" />
+    <orderEntry type="module" module-name="asmack" exported="" />
   </component>
 </module>

@@ -1,1 +1,1 @@
-include ':device', ':devicelib', ':controlpointlib', ':controlpoint', ':ibcdemo', ':ucadevice'
+include ':device', ':devicelib', ':controlpointlib', ':controlpoint', ':ibcdemo', ':ucadevice', ':asmack'

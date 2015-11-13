@@ -48,6 +48,7 @@ import android.util.Xml;
 
 import com.comarch.android.upnp.ibcdemo.XmlUtils;
 import com.comarch.android.upnp.ibcdemo.model.Sensor;
+import com.comarch.android.upnp.ibcdemo.model.SensorFridge;
 import com.comarch.android.upnp.ibcdemo.model.SensorLight;
 import com.comarch.android.upnp.ibcdemo.model.SensorTemperature;
 import com.google.common.base.Predicate;
@@ -68,6 +69,7 @@ public abstract class CommonSensorFactory {
 	}
 	protected static final String LIGHT_SENSOR_TYPE = "urn:upnp-org:smgt-st:light:upnp-org:upnplight:Comarch:CloudLight";
 	protected static final String TEMPERATURE_SENSOR_TYPE = "urn:upnp-org:smgt-st:actuator:upnp-org:Temperature_cur:Comarch:CloudLightTemperature";
+	protected static final String FRIDGE_SENSOR_TYPE = "urn:upnp-org:smgt-st:refrigerator:AcmeSensorsCorp-com:AcmeIntegratedController:FrigidaireCorp:rf217acrs:monitor";
 	
 	protected abstract String getLogTag();
 	
@@ -78,8 +80,10 @@ public abstract class CommonSensorFactory {
         String sensorType = args.get(sensorPath+"/SensorType");
         if(sensorType.startsWith(LIGHT_SENSOR_TYPE)){
         	sensor = createLightSensor(sensorName,uuid,sensorPath,args);
-        }else if(sensorType.startsWith(TEMPERATURE_SENSOR_TYPE)){
-        	sensor = createTemperatureSensor(sensorName,uuid,sensorPath,args);
+        }else if(sensorType.startsWith(TEMPERATURE_SENSOR_TYPE)) {
+			sensor = createTemperatureSensor(sensorName, uuid, sensorPath, args);
+		} else if (sensorType.startsWith(FRIDGE_SENSOR_TYPE)) {
+			sensor = createFridgeSensor(sensorName, uuid, sensorPath, args);
         }else{
         	Log.i(getLogTag(),"Unknow sensorType: "+sensorType);
         }
@@ -91,7 +95,7 @@ public abstract class CommonSensorFactory {
 
 	protected Map<String,List<String>> getSensorURNs(String sensorPath,Map<String,String> args){
 		Map<String,List<String>> sensorURNs = new HashMap<String,List<String>>();
-        int sensorURNsNumberOfEntries = Integer.parseInt(args.get(sensorPath+"/SensorURNsNumberOfEntries"));
+        int sensorURNsNumberOfEntries = Integer.parseInt(args.get(sensorPath + "/SensorURNsNumberOfEntries"));
         for(int j=1;j<=sensorURNsNumberOfEntries;++j){
         	String sensorURNPath = sensorPath+"/SensorURNs/"+j;
         	String sensorURN = args.get(sensorPath+"/SensorURNs/"+j+"/SensorURN");
@@ -106,8 +110,13 @@ public abstract class CommonSensorFactory {
 	}
 	
 	protected Sensor createLightSensor(String sensorName, String uuid,String sensorPath,Map<String,String> args) {
-		Map<String,List<String>> sensorURNs = getSensorURNs(sensorPath,args);
+		Map<String,List<String>> sensorURNs = getSensorURNs(sensorPath, args);
 		return new SensorLight(uuid,sensorName,sensorURNs);
+	}
+
+	protected Sensor createFridgeSensor(String sensorName, String uuid, String sensorPath, Map<String, String> args) {
+		Map<String,List<String>> sensorURNs = getSensorURNs(sensorPath,args);
+		return new SensorFridge(uuid,sensorName,sensorURNs);
 	}
 
 	protected Sensor createTemperatureSensor(String sensorName, String uuid,String sensorPath,Map<String,String> args) {

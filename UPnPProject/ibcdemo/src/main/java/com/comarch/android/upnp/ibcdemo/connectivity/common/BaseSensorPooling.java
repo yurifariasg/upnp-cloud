@@ -43,6 +43,7 @@ import android.util.Log;
 import com.comarch.android.upnp.ibcdemo.connectivity.busevent.IServiceActionEvent;
 import com.comarch.android.upnp.ibcdemo.model.DeviceUpnp;
 import com.comarch.android.upnp.ibcdemo.model.Sensor;
+import com.comarch.android.upnp.ibcdemo.model.SensorFridge;
 import com.comarch.android.upnp.ibcdemo.model.SensorLight;
 import com.comarch.android.upnp.ibcdemo.model.SensorTemperature;
 import com.comarch.android.upnp.ibcdemo.ui.newview.busevents.UICurrentDevice;
@@ -140,6 +141,40 @@ public abstract class BaseSensorPooling {
 			updateTemperatureSensor((SensorTemperature) sensor);
 		} else if (sensor instanceof SensorLight) {
 			updateLightSensor((SensorLight) sensor);
+		} else if (sensor instanceof SensorFridge) {
+			updateFridgeSensor((SensorFridge) sensor);
+		}
+	}
+
+	private void updateFridgeSensor(final SensorFridge sensor) {
+		long now = System.currentTimeMillis();
+		String sentRequestKey = getSentRequestKey(sensor, SensorFridge.TEMPERATURE_SENSOR_URN);
+		boolean sendRequestNow = canSendRequest(sentRequestKey);
+		if (sendRequestNow) {
+			mSentRequests.put(sentRequestKey, now);
+			String sensorUrn = sensor
+					.getSensorURNWhichBegin(SensorFridge.TEMPERATURE_SENSOR_URN);
+			Map<String, String> args = sensor.prepareReadMap(sensorUrn,
+					Lists.newArrayList(SensorFridge.TEMPERATURE_SENSOR_NAME));
+			mEventBus.post(createServiceActionEvent(sensor,
+					Sensor.SENSOR_TRANSPORT_GENERIC_SERVICE,
+					Sensor.READ_SENSOR_ACTION, args, new ReadSensorCallback(sensor,SensorFridge.TEMPERATURE_SENSOR_URN) {
+						@Override
+						public void updateSensor(Map<String, Object> dataRecords) {
+							if (dataRecords.containsKey(SensorFridge.TEMPERATURE_SENSOR_NAME)) {
+								double temp = Double.parseDouble((String) dataRecords
+										.get(SensorFridge.TEMPERATURE_SENSOR_NAME));
+								if (sensor.getThemperature() != temp) {
+									sensor.setThemperature(temp);
+									Log.i("Fridge", "New Temperature: " + temp);
+									if (observer != null) {
+										observer.onDevicePropertiesChanged(sensor,
+												dataRecords);
+									}
+								}
+							}
+						}
+					}));
 		}
 	}
 

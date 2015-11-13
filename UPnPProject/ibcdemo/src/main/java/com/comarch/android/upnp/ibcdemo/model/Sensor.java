@@ -173,6 +173,6 @@ public class Sensor extends SourcedDeviceUpnp {
 			value = value.equals("1") ? "true" : value; 
 			return Boolean.parseBoolean(value);
 		}
-		return null;
+		return value;
 	}
 }
