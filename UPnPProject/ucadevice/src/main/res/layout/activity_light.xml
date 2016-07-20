@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:padding="50dp" tools:context=".TempSensorActivity">
+
+    <TextView
+        android:id="@+id/status_tv"
+        android:text="Status Text Here"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:textAppearance="?android:textAppearanceLarge"/>
+
+    <TextView
+        android:id="@+id/light_status"
+        android:text="Light is: ON"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/status_tv"
+        android:layout_marginTop="20dp"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:alpha="0.7"/>
+</RelativeLayout>

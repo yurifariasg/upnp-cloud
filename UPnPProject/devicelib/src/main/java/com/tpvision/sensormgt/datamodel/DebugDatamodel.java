@@ -33,7 +33,7 @@ public class DebugDatamodel {
 	
 	public final static boolean DEBUG_DATAMODEL=false;
 	public final static boolean DEBUG_XML=true;
-	public final static boolean DEBUG_UPNP=true;
+	public final static boolean DEBUG_UPNP=false;
 	public final static boolean DEBUG_UPNP_INTERNAL=false;
 	public final static boolean DEBUG_EVENTING=false;
 }

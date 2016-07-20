@@ -35,7 +35,8 @@ package com.comarch.android.upnp.ibcdemo.connectivity.xmpp;
 import android.content.Context;
 import android.util.Log;
 
-import com.comarch.android.upnp.ibcdemo.MainActivity;
+import com.comarch.android.upnp.ibcdemo.TempSensorActivity;
+import com.comarch.android.upnp.ibcdemo.UtilClass;
 import com.comarch.android.upnp.ibcdemo.busevent.ConnectionStateChangedEvent.ConnectionState;
 import com.comarch.android.upnp.ibcdemo.busevent.ControlPointNameChanged;
 import com.comarch.android.upnp.ibcdemo.busevent.DeviceListRefreshRequestEvent;
@@ -63,7 +64,6 @@ import com.comarch.android.upnp.ibcdemo.connectivity.xmpp.listeners.CLPacketList
 import com.comarch.android.upnp.ibcdemo.connectivity.xmpp.listeners.CallbacksListener;
 import com.comarch.android.upnp.ibcdemo.connectivity.xmpp.listeners.ChatListener;
 import com.comarch.android.upnp.ibcdemo.connectivity.xmpp.listeners.MediaServerListener;
-import com.comarch.android.upnp.ibcdemo.connectivity.xmpp.listeners.PresenceListener;
 import com.comarch.android.upnp.ibcdemo.connectivity.xmpp.packet.DiscoItemsIQ;
 import com.comarch.android.upnp.ibcdemo.connectivity.xmpp.packet.ResultIQ;
 import com.comarch.android.upnp.ibcdemo.connectivity.xmpp.packet.SoapRequestIQ;
@@ -85,6 +85,12 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.packet.Presence.Mode;
 import org.jivesoftware.smack.provider.ProviderManager;
+import org.jivesoftware.smackx.Form;
+import org.jivesoftware.smackx.FormField;
+import org.jivesoftware.smackx.pubsub.ConfigureNodeFields;
+import org.jivesoftware.smackx.pubsub.Node;
+import org.jivesoftware.smackx.pubsub.NodeType;
+import org.jivesoftware.smackx.pubsub.PubSubManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -120,13 +126,15 @@ SensorPoolingObserver {
     private ChatListener mChatListener;
     private XmppSensorPooling mSensorPooling;
     private Context mContext;
+
+    private PubSubManager manager;
     
     public XmppConnector(Context ctx, EventBus bus) {
         super();
         this.bus = bus;
         this.mContext = ctx;
         SmackAndroid.init(ctx);
-        XMPPConnection.DEBUG_ENABLED = true;
+        XMPPConnection.DEBUG_ENABLED = false;
         bus.postSticky(new XmppConnectionStateChangedEvent(ConnectionState.DISCONNECTED));
         
         ProviderManager providers = ProviderManager.getInstance();
@@ -141,6 +149,7 @@ SensorPoolingObserver {
     }
 
     public void sendDeviceDetails(String to, String from) {
+        Log.i("sendDeviceDetails", "sendDeviceDetails");
         String deviceDetails = getDeviceDetails();
         ResultIQ resultIQ = new ResultIQ(deviceDetails);
         resultIQ.setFrom(from);
@@ -150,9 +159,10 @@ SensorPoolingObserver {
 
     private String getDeviceDetails() {
         try {
-            String str = MainActivity.upnpService.getConfiguration()
-                    .getDeviceDescriptorBinderUDA10().generate(MainActivity.MainDevice,
+            String str = UtilClass.upnpService.getConfiguration()
+                    .getDeviceDescriptorBinderUDA10().generate(UtilClass.MainDevice,
                             new RemoteClientInfo(), new Namespace(""));
+            Log.i("getDeviceDetails", str.substring(55));
             return str.substring(55);
         } catch (Exception e) {
             Log.e("XmppConnector", "Exception while parsing device.", e);
@@ -174,7 +184,8 @@ SensorPoolingObserver {
     }
     public void onEvent(XmppConnectionOpenRequestEvent event) {
         Log.i("XmppConnector", "onEvent: XmppConnectionOpenRequestEvent");
-        login(event.getLogin(), event.getPassword(), event.getHostname(), event.getPort(),event.getPubsubService(),event.getControlPointName());
+        login(event.getLogin(), event.getPassword(), event.getHostname(), event.getPort(),event
+                .getPubsubService(),event.getControlPointName());
     }
 
     public void onEvent(XmppConnectionCloseRequestEvent event) {
@@ -187,10 +198,24 @@ SensorPoolingObserver {
         if(event.getState()==ConnectionState.DISCONNECTED){
             devicesList.clear();
             bus.post(new NotifyWithDevicesEvent());
-            mSensorPooling.stop();
+//            mSensorPooling.stop();
         }else if(event.getState()==ConnectionState.CONNECTED){
-        	mSensorPooling.start();
-        	
+//        	mSensorPooling.start();
+            Log.i("", "Connected.");
+
+            manager = new PubSubManager(connection, "pubsub.brigadeiro.local");
+
+//            Form form = new Form(Form.TYPE_FORM);
+//            FormField formField = new FormField(ConfigureNodeFields.node_type.getFieldName());
+//            formField.addValue(NodeType.collection.toString());
+//            form.addField(formField);
+
+//            try {
+//                Node node = manager.createNode(resource, form);
+//                Log.i("", "Node Created Successfully! " + (node != null));
+//            } catch (XMPPException e) {
+//                e.printStackTrace();
+//            }
         }
     }
     
@@ -203,7 +228,8 @@ SensorPoolingObserver {
     
     public void onEvent(XmppServiceActionEvent event) {
         Log.i("XmppConnector", "onEvent: XmppServiceActionEvent");
-        SoapRequestIQ request = new SoapRequestIQ(event.getActionName(),event.getServiceName(),event.getArgs());
+        SoapRequestIQ request = new SoapRequestIQ(event.getActionName(),event.getServiceName(),
+                event.getArgs());
         request.setTo(event.getDevice().getDescription().getJid());
         if(event.getCallback()!=null){
             callbacksListnener.registerCallback(request.getPacketID(), event.getCallback());
@@ -217,7 +243,8 @@ SensorPoolingObserver {
         args.put("BrowseFlag", "BrowseDirectChildren");
         args.put("Filter", "*");
         
-        SoapRequestIQ request = new SoapRequestIQ("Browse","urn:schemas-upnp-org:service:ContentDirectory:1",args);
+        SoapRequestIQ request = new SoapRequestIQ("Browse",
+                "urn:schemas-upnp-org:service:ContentDirectory:1",args);
         request.setTo(event.getMediaServer().getDescription().getJid());
         
         mediaServerListener.registerPacketIdWithDirId(request.getPacketID(), event.getDirectoryId());
@@ -225,7 +252,6 @@ SensorPoolingObserver {
     }
     
     public void onEvent(ControlPointNameChanged event) {
-        Log.i("XmppConnector", "onEvent: ControlPointNameChanged");
     	if(connection!=null && connection.isConnected()){
             Presence p = new Presence(Presence.Type.available, event.getName(), 42, Mode.available);
             connection.sendPacket(p);
@@ -241,18 +267,17 @@ SensorPoolingObserver {
         connection.sendPacket(iq);
     }
 
-    public void login(final String login, final String password, final String hostname, final int port,final String pubsub, final String cpName) {
+    public void login(final String login, final String password, final String hostname, final int
+            port,final String pubsub, final String cpName) {
         addTask(new Runnable() {
             @Override
             public void run() {
-                Log.i("XmppConnector", "login()");
                 String[] loginArray = login.split("@");
                 String userName = loginArray[0];
                 String domain = loginArray[1];
                 boolean result = false;
                 bus.postSticky(new XmppConnectionStateChangedEvent(ConnectionState.CONNECTING));
 
-                Log.i("XmppConnector", "Config: " + hostname + ":" + port);
                 ConnectionConfiguration config = new ConnectionConfiguration(hostname, port, domain);
                 config.setReconnectionAllowed(false);
                 config.setSecurityMode(ConnectionConfiguration.SecurityMode.disabled);
@@ -277,13 +302,12 @@ SensorPoolingObserver {
                         Presence p = new Presence(Presence.Type.available, cpName, 42, Mode.available);
                         connection.sendPacket(p);
                         addPacketListener(new CLPacketListener(XmppConnector.this));
-                        addPacketListener(new PresenceListener(XmppConnector.this));
                         addPacketListener(new MediaServerListener(XmppConnector.this));
                         addPacketListener(mChatListener);
                         addPacketListener(callbacksListnener);
                         addPacketListener(mediaServerListener);
                         
-                        eventing = new XmppEventing(connection, XmppConnector.this, fullJid, pubsub);
+//                        eventing = new XmppEventing(connection, XmppConnector.this, fullJid, pubsub);
                         mSensorPooling.setObserver(XmppConnector.this);
 
                         sendDiscoItems();
@@ -320,8 +344,8 @@ SensorPoolingObserver {
     }
     
     private static String createNewResourceString() {
-    	return MainActivity.MainDevice.getType().toString() + ":"
-                + MainActivity.MainDevice.getIdentity().getUdn();
+    	return UtilClass.MainDevice.getType().toString() + ":"
+                + UtilClass.MainDevice.getIdentity().getUdn();
     }
     
     public boolean addPacketListener(PacketListenerWithFilter pfwl){
@@ -362,7 +386,7 @@ SensorPoolingObserver {
 
                 Log.i("XmppConnector", "disconnect()");
                 if (connection != null && connection.isConnected()) {
-                    eventing.finish();
+//                    eventing.finish();
                     connection.disconnect();
                     mSensorPooling.stop();
                 } else {
@@ -418,12 +442,12 @@ SensorPoolingObserver {
 		    devicesList.put(deviceDescription.getJid(),deviceDescription.getBoundDevice());
 			notifyUi();
 	
-			addTask(new Runnable() {
-				@Override
-				public void run() {
-					eventing.onNewDeviceDiscovered(deviceDescription);
-				}
-			});
+//			addTask(new Runnable() {
+//				@Override
+//				public void run() {
+//					eventing.onNewDeviceDiscovered(deviceDescription);
+//				}
+//			});
 		}
 	}
 

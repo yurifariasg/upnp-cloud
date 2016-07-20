@@ -34,7 +34,8 @@ package com.comarch.android.upnp.ibcdemo.connectivity.xmpp.listeners;
 
 import android.util.Log;
 
-import com.comarch.android.upnp.ibcdemo.MainActivity;
+import com.comarch.android.upnp.ibcdemo.TempSensorActivity;
+import com.comarch.android.upnp.ibcdemo.UtilClass;
 import com.comarch.android.upnp.ibcdemo.connectivity.xmpp.PacketListenerWithFilter;
 import com.comarch.android.upnp.ibcdemo.connectivity.xmpp.XmppConnector;
 import com.comarch.android.upnp.ibcdemo.connectivity.xmpp.packet.SoapRequestIQ;
@@ -48,8 +49,6 @@ import org.fourthline.cling.model.meta.Action;
 import org.fourthline.cling.model.meta.ActionArgument;
 import org.fourthline.cling.model.meta.LocalDevice;
 import org.fourthline.cling.model.meta.LocalService;
-import org.fourthline.cling.model.meta.StateVariable;
-import org.fourthline.cling.model.state.StateVariableAccessor;
 import org.fourthline.cling.model.types.ServiceId;
 import org.jivesoftware.smack.packet.Packet;
 
@@ -86,7 +85,7 @@ public class CLPacketListener implements PacketListenerWithFilter {
             SoapRequestIQ iq = (SoapRequestIQ) packet;
             Log.i("CLPacketListener", "" + iq);
             final String serviceId = iq.getServiceType();
-            LocalDevice device = MainActivity.MainDevice;
+            LocalDevice device = UtilClass.MainDevice;
 
             LocalService localService = device.findService(
                     ServiceId.valueOf(serviceId));
@@ -102,7 +101,8 @@ public class CLPacketListener implements PacketListenerWithFilter {
             ActionInvocation invokation = null;
 
             if (iq.getArguments().isEmpty()) {
-                localService.getExecutor(action).execute(new ActionInvocation<>(action));
+                Log.i("ProcessSoapResponseIQ", "Invoking action without arguments...");
+                invokation = new ActionInvocation<>(action);
             } else {
                 ActionArgumentValue[] args = new ActionArgumentValue[iq.getArguments().size()];
                 int i = 0;
@@ -117,12 +117,10 @@ public class CLPacketListener implements PacketListenerWithFilter {
                 }
 
                 Log.i("ProcessSoapResponseIQ", "Invoking action...");
-
                 invokation = new ActionInvocation(action, args);
-                localService.getExecutor(action).execute(invokation);
             }
+            localService.getExecutor(action).execute(invokation);
             final HashMap<String, String> args = new HashMap<>();
-
             ActionArgumentValue[] output = invokation.getOutput();
             for (int i = 0 ; i < output.length ; i++) {
                 Object value = output[i].getValue();

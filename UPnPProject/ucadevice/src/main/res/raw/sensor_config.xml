@@ -11,7 +11,7 @@
 				<Sensors>
 					<Instance id="1">
 						<SensorID Type="string" Access="readOnly">Sensor0001</SensorID>
-						<SensorType Type="string" Access="readOnly">urn:upnp-org:smgt-st:refrigerator:AcmeSensorsCorp-com:AcmeIntegratedController:FrigidaireCorp:rf217acrs:monitor</SensorType>
+						<SensorType Type="string" Access="readOnly">oic.r.temperature.json</SensorType>
 						<SensorUpdateRequest Type="int" Access="readWrite">0</SensorUpdateRequest>
 						<SensorPollingInterval Type="int" Access="readWrite">0</SensorPollingInterval>
 						<SensorReportChangeOnly Type="int" Access="readWrite">0</SensorReportChangeOnly>
@@ -21,7 +21,7 @@
 								<SensorURN Type="string" Access="readOnly">urn:upnp-org:smgt-surn:refrigerator:AcmeSensorsCorp-com:AcmeIntegratedController:FrigidaireCorp:rf217acrs:monitor</SensorURN>
 								<DataItems>
 									<Instance id="1">
-										<Name Type="string" Access="readOnly">AccumulatedPowerUsed</Name>
+										<Name Type="string" Access="readOnly">temperature</Name>
 										<Type Type="string" Access="readOnly">uda:i4</Type>
 										<Encoding Type="string" Access="readOnly">ascii</Encoding>
 										<Description Type="string" Access="readOnly"><![CDATA[&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
@@ -30,10 +30,10 @@
   xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;
   xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
   xsi:schemaLocation=&quot;urn:schemas-upnp-org:smgt:sdmdid.xsd http://www.upnp.org/schemas/smgt/sdmdid-v1.xsd&quot;
-  itemname=&quot;AccumulatedPowerUsed&quot;
+  itemname=&quot;FridgeTemperature&quot;
   access=&quot;ro&quot;&gt;
   &lt;description&gt;
-    Accumulated Power consumption
+    The Fridge Temperature
   &lt;/description&gt;
   &lt;measurement
   	units=&quot;kW-h&quot;
@@ -41,172 +41,6 @@
     treatment=&quot;current&quot;
     accumulation=&quot;cumulative&quot;&gt;
   &lt;/measurement&gt;
-&lt;/DataItemDescription&gt;]]>
-										</Description>
-									</Instance>
-									<Instance id="2">
-										<Name Type="string" Access="readOnly">FreezerTemp</Name>
-										<Type Type="string" Access="readOnly">uda:i4</Type>
-										<Encoding Type="string" Access="readOnly">ascii</Encoding>
-										<Description Type="string" Access="readOnly"><![CDATA[&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;DataItemDescription
-  xmlns=&quot;urn:schemas-upnp-org:smgt:sdmdid&quot;
-  xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;
-  xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-  xsi:schemaLocation=&quot;urn:schemas-upnp-org:smgt:sdmdid.xsd http://www.upnp.org/schemas/smgt/sdmdid-v1.xsd&quot;
-  itemname=&quot;FreezerTemp&quot;
-  access=&quot;ro&quot;&gt;
-  &lt;description&gt;
-    Freezer (Avg) Compartment Temperature
-  &lt;/description&gt;
-  &lt;measurement
-    units=&quot;degC&quot;
-    access=&quot;ro&quot;
-    treatment=&quot;average&quot;
-    accumulation=&quot;interval&quot;&gt;
-    &lt;relateditem 
-      itemname=&quot;StatusInterval&quot;
-      relationtype=&quot;interval&quot; /&gt;
-  &lt;/measurement&gt;
-&lt;/DataItemDescription&gt;]]>
-
-										</Description>
-									</Instance>
-									<Instance id="3">
-										<Name Type="string" Access="readOnly">GroceryTemp</Name>
-										<Type Type="string" Access="readOnly">uda:i4</Type>
-										<Encoding Type="string" Access="readOnly">ascii</Encoding>
-										<Description Type="string" Access="readOnly"><![CDATA[&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;DataItemDescription
-  xmlns=&quot;urn:schemas-upnp-org:smgt:sdmdid&quot;
-  xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;
-  xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-  xsi:schemaLocation=&quot;urn:schemas-upnp-org:smgt:sdmdid.xsd http://www.upnp.org/schemas/smgt/sdmdid-v1.xsd&quot;
-  itemname=&quot;GroceryTemp&quot;
-  access=&quot;ro&quot;&gt;
-  &lt;description&gt;
-    GroceryTemp (Avg) Compartment Temperature
-  &lt;/description&gt;
-  &lt;measurement
-    units=&quot;degC&quot;
-    access=&quot;ro&quot;
-    treatment=&quot;average&quot;
-    accumulation=&quot;interval&quot;&gt;
-    &lt;relateditem 
-      itemname=&quot;StatusInterval&quot;
-      relationtype=&quot;interval&quot; /&gt;
-  &lt;/measurement&gt;
-&lt;/DataItemDescription&gt;]]>
-										</Description>
-									</Instance>
-									<Instance id="4">
-										<Name Type="string" Access="readOnly">VegetableTemp</Name>
-										<Type Type="string" Access="readOnly">uda:i4</Type>
-										<Encoding Type="string" Access="readOnly">ascii</Encoding>
-										<Description Type="string" Access="readOnly"><![CDATA[&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;DataItemDescription
-  xmlns=&quot;urn:schemas-upnp-org:smgt:sdmdid&quot;
-  xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;
-  xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-  xsi:schemaLocation=&quot;
-    urn:schemas-upnp-org:smgt:sdmdid.xsd
-    http://www.upnp.org/schemas/smgt/sdmdid-v1.xsd&quot;
-  itemname=&quot;VegetableTemp&quot;
-  access=&quot;ro&quot;&gt;
-  &lt;description&gt;
-    VegetableTemp (Avg) Compartment Temperature
-  &lt;/description&gt;
-  &lt;measurement
-    units=&quot;degC&quot;
-    access=&quot;ro&quot;
-    treatment=&quot;average&quot;
-    accumulation=&quot;interval&quot;&gt;
-    &lt;relateditem 
-      itemname=&quot;StatusInterval&quot;
-      relationtype=&quot;interval&quot; /&gt;
-  &lt;/measurement&gt;
-&lt;/DataItemDescription&gt;]]>
-										</Description>
-									</Instance>
-									<Instance id="5">
-										<Name Type="string" Access="readOnly">DoorOpenAlarm</Name>
-										<Type Type="string" Access="readOnly">uda:boolean</Type>
-										<Encoding Type="string" Access="readOnly">ascii</Encoding>
-										<Description Type="string" Access="readOnly"><![CDATA[&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;DataItemDescription
-  xmlns=&quot;urn:schemas-upnp-org:smgt:sdmdid&quot;
-  xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;
-  xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-  xsi:schemaLocation=&quot;
-    urn:schemas-upnp-org:smgt:sdmdid.xsd
-    http://www.upnp.org/schemas/smgt/sdmdid-v1.xsd&quot;
-  itemname=&quot;DoorOpenAlarm&quot;
-  access=&quot;ro&quot;&gt;
-  &lt;description&gt;
-    Generates an Alarm if the door is open too long
-  &lt;/description&gt;
-  &lt;alarm
-  access=&quot;ro&quot;&gt;
-  &lt;/alarm&gt;
-  &lt;limit units=&quot;s&quot;
-  	limittype=&quot;timeout&quot;
-    access=&quot;ro&quot; /&gt;
-&lt;/DataItemDescription&gt;]]>
-										</Description>
-									</Instance>
-									<Instance id="6">
-										<Name Type="string" Access="readOnly">PowerFaultAlarm</Name>
-										<Type Type="string" Access="readOnly">uda:boolean</Type>
-										<Encoding Type="string" Access="readOnly">ascii</Encoding>
-										<Description Type="string" Access="readOnly"><![CDATA[&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;DataItemDescription
-  xmlns=&quot;urn:schemas-upnp-org:smgt:sdmdid&quot;
-  xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;
-  xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-  xsi:schemaLocation=&quot;
-    urn:schemas-upnp-org:smgt:sdmdid.xsd
-    http://www.upnp.org/schemas/smgt/sdmdid-v1.xsd&quot;
-  itemname=&quot;PowerFaultAlarm&quot;
-  access=&quot;ro&quot;&gt;
-  &lt;description&gt;
-    Generates and Alarm when mains power is lost
-  &lt;/description&gt;
-  &lt;alarm
-  access=&quot;ro&quot;&gt;
-  &lt;/alarm&gt;
-&lt;/DataItemDescription&gt;]]>
-										</Description>
-									</Instance>
-									<Instance id="7">
-										<Name Type="string" Access="readOnly">StatusInterval</Name>
-										<Type Type="string" Access="readOnly">uda:i4</Type>
-										<Encoding Type="string" Access="readOnly">ascii</Encoding>
-										<Description Type="string" Access="readOnly"><![CDATA[&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
-&lt;DataItemDescription
-  xmlns=&quot;urn:schemas-upnp-org:smgt:sdmdid&quot;
-  xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot;
-  xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-  xsi:schemaLocation=&quot;
-    urn:schemas-upnp-org:smgt:sdmdid.xsd
-    http://www.upnp.org/schemas/smgt/sdmdid-v1.xsd&quot;
-  itemname=&quot;StatusInterval&quot;
-  access=&quot;rw&quot;&gt;
-  &lt;description&gt;
-    Frequency of status updates
-  &lt;/description&gt;
-  &lt;interval
-    units=&quot;duration&quot;
-    access=&quot;ro&quot;&gt;
-    &lt;relateditem 
-      itemname=&quot;FreezerTemp&quot;
-      relationtype=&quot;measurement&quot;/&gt;
-          &lt;relateditem 
-      itemname=&quot;GroceryTemp&quot;
-      relationtype=&quot;measurement&quot;/&gt;
-          &lt;relateditem 
-      itemname=&quot;VegetableTemp&quot;
-      relationtype=&quot;measurement&quot;/&gt;
-  &lt;/interval&gt;
 &lt;/DataItemDescription&gt;]]>
 										</Description>
 									</Instance>

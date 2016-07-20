@@ -278,7 +278,7 @@ public class DataItem {
 		if (value!=null) {
 			if ((mValue==null) || !value.contentEquals(mValue))
 			{
-				Log.i(TAG,"Set Value " + mName + ": " + value + " on "+ mName);
+//				Log.i(TAG,"Set Value " + mName + ": " + value + " on "+ mName);
 				mValue = value;
 				if (!mSOAPRead) sensorValueNotRead();
 				if (!mTransportRead) sensorValueNotTransported();

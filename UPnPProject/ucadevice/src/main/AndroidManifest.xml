@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.comarch.android.upnp.ibcdemo" >
+          package="com.comarch.android.upnp.ibcdemo">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
@@ -14,22 +14,30 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
-        <activity android:name="com.comarch.android.upnp.ibcdemo.MainActivity" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+        android:theme="@style/AppTheme">
+        <activity android:name=".TempSensorActivity">
+        </activity>
+        <activity android:name=".BodyTempSensorActivity">
+        </activity>
+        <activity android:name=".SimpleLightActivity">
         </activity>
 
         <service android:name="org.fourthline.cling.android.AndroidUpnpServiceImpl"/>
-        <service android:name="com.comarch.android.upnp.ibcdemo.connectivity.ConnectivityService" />
-        <service android:name="com.tpvision.sensormgt.devicelib.SensorMgtService"
-            android:exported="true" />
-        <provider android:name="com.tpvision.sensormgt.datastore.database.DataStoreProvider"
+        <service android:name=".connectivity.ConnectivityService"/>
+        <service
+            android:name="com.tpvision.sensormgt.devicelib.SensorMgtService"
+            android:exported="true"/>
+
+        <provider
+            android:name="com.tpvision.sensormgt.datastore.database.DataStoreProvider"
             android:authorities="com.tpvision.sensormgt.datastore"/>
 
+        <activity android:name=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
