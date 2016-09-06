@@ -13,6 +13,7 @@ import android.widget.Toast;
 import com.comarch.android.upnp.ibcdemo.busevent.ConnectionStateChangedEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.DeviceListRefreshRequestEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.connector.connection.LocalConnectionStateChangedEvent;
+import com.comarch.android.upnp.ibcdemo.busevent.connector.connection.XmppConnectionCloseRequestEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.connector.connection.XmppConnectionOpenRequestEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.connector.connection.XmppConnectionStateChangedEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.connector.data.UpdateDeviceListEvent;
@@ -51,6 +52,7 @@ import org.fourthline.cling.model.types.DeviceType;
 import org.fourthline.cling.model.types.UDADeviceType;
 import org.fourthline.cling.model.types.UDAServiceType;
 import org.fourthline.cling.model.types.UDN;
+import org.fourthline.cling.model.types.UnsignedIntegerOneByte;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -63,7 +65,7 @@ import butterknife.ButterKnife;
 
 
 public class SimpleLightActivity extends ActivityWithBusDeliverer implements PropertyChangeListener,
-        SensorReadListener, SensorWriteListener, DeviceChangedListener, SensorChangeListener {
+        DeviceChangedListener {
 
     private UDN udn = new UDN(UUID.randomUUID());
 
@@ -80,10 +82,8 @@ public class SimpleLightActivity extends ActivityWithBusDeliverer implements Pro
         ButterKnife.bind(this);
 
         // Stuff from SensorManagement Device
-        mDataStoreInterfaceImpl = new DataStoreInterfaceImpl(getContentResolver());
+//        mDataStoreInterfaceImpl = new DataStoreInterfaceImpl(getContentResolver());
 //        setupSensorNetwork();
-
-        startUpnpService();
     }
 
     private void startUpnpService() {
@@ -114,13 +114,6 @@ public class SimpleLightActivity extends ActivityWithBusDeliverer implements Pro
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        // Stop monitoring the power switch
-        LocalService<SwitchPower> switchPowerService = getSwitchPowerService();
-        if (switchPowerService != null)
-            switchPowerService.getManager().getImplementation().getPropertyChangeSupport()
-                    .removePropertyChangeListener(this);
-
     }
 
     protected LocalService<SwitchPower> getSwitchPowerService() {
@@ -175,6 +168,17 @@ public class SimpleLightActivity extends ActivityWithBusDeliverer implements Pro
 
         LocalService[] services = new LocalService[] {service, dimmingService};
 
+
+        service.getManager().getImplementation().getPropertyChangeSupport()
+                .addPropertyChangeListener(this);
+
+        dimmingService.getManager().getImplementation().getPropertyChangeSupport()
+                .addPropertyChangeListener(this);
+
+
+        setLightbulb(service.getManager().getImplementation().getStatus());
+//        dimmingService.getManager().getImplementation().get
+
         return new LocalDevice(
                 new DeviceIdentity(udn),
                 type,
@@ -186,19 +190,20 @@ public class SimpleLightActivity extends ActivityWithBusDeliverer implements Pro
     public void propertyChange(PropertyChangeEvent event) {
         // This is regular JavaBean eventing, not UPnP eventing!
         if (event.getPropertyName().equals("status")) {
-//            setLightbulb((Boolean) event.getNewValue());
+            setLightbulb((Boolean) event.getNewValue());
         } else if (event.getPropertyName().equals("loadLevelStatus")) {
 //            setDimmingLevel((UnsignedIntegerOneByte) event.getNewValue());
         }
     }
 
-//    protected void setLightbulb(final boolean on) {
-//        runOnUiThread(new Runnable() {
-//            public void run() {
+    protected void setLightbulb(final boolean on) {
+        runOnUiThread(new Runnable() {
+            public void run() {
 //                ((TextView) findViewById(R.id.status_tv)).setText("Light is on? " + on);
-//            }
-//        });
-//    }
+                mLightStatusTv.setText("Status is: " + on);
+            }
+        });
+    }
 
 //    protected void setDimmingLevel(final UnsignedIntegerOneByte dimmmingLevel) {
 //        runOnUiThread(new Runnable() {
@@ -212,12 +217,23 @@ public class SimpleLightActivity extends ActivityWithBusDeliverer implements Pro
     @Override
     protected void onPause() {
         super.onPause();
+        stopService(new Intent(this, AndroidUpnpServiceImpl.class));
+        UtilClass.upnpService.get().shutdown();
+        getBus().post(new XmppConnectionCloseRequestEvent());
+
+        // Stop monitoring the power switch
+        LocalService<SwitchPower> switchPowerService = getSwitchPowerService();
+        if (switchPowerService != null)
+            switchPowerService.getManager().getImplementation().getPropertyChangeSupport()
+                    .removePropertyChangeListener(this);
+
         getBus().unregister(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        startUpnpService();
         getBus().registerSticky(this);
         getBus().postSticky(new DeviceListRefreshRequestEvent());
     }
@@ -230,7 +246,8 @@ public class SimpleLightActivity extends ActivityWithBusDeliverer implements Pro
                         "test@brigadeiro.local",
                         "test",
 //                        "192.168.31.132",
-                        "10.90.90.253",
+//                        "10.90.90.253",
+                        "10.100.100.124",
                         5222,
                         "pubsub.brigadeiro.local",
                         deviceName
@@ -271,73 +288,6 @@ public class SimpleLightActivity extends ActivityWithBusDeliverer implements Pro
         Log.i("MainActivity", "onEvent: NotifyDeviceListChangedEvent");
     }
 
-    // SensorManagement Stuff
-    private TemperatureSensor mFreezerTemp;
-    private DatamodelInterfaceImpl mDatamodelInterface;
-    private DataStoreInterfaceImpl mDataStoreInterfaceImpl;
-    private ClingUPnPInit mCling;
-
-    /**
-     * This is where the sensor network is initialised, the datamodel, is read,
-     * the device info is read, and sensors are created
-     *
-     */
-    private void setupSensorNetwork() {
-
-        DatamodelNode instanceTree = new SingleInstanceNode(null, "UPnP");
-        DatamodelNode child = new SingleInstanceNode(instanceTree, "SensorMgt");
-        instanceTree.addChildNode(child);
-        DeviceParser.parse(getResources().openRawResource(R.raw.sensor_config), child);
-
-        List<DataItem> dataItemList = new ArrayList<>();
-
-        String urn = "urn:upnp-org:smgt-surn:refrigerator:AcmeSensorsCorp-com:AcmeIntegratedController:FrigidaireCorp:rf217acrs:monitor";
-
-        // three sensors
-        mFreezerTemp = new TemperatureSensor("SensorCollection0001", "Sensor0001", urn,
-                "temperature");
-        mFreezerTemp.setAvgTemp(-21);
-        mFreezerTemp.setSensorValue("-21");
-        mFreezerTemp.setUpdatePeriod(30);
-        mFreezerTemp.addOnSensorChangeListener(this);
-
-        DataItem mClientID = new DataItem("SensorCollection0001", "Sensor0001", urn, "ClientID");
-
-        dataItemList.add(mFreezerTemp);
-
-        dataItemList.add(mClientID);
-
-        mDatamodelInterface = new DatamodelInterfaceImpl(Datamodel.inflateDatamodelTree(Datamodel.mDatamodelDefinition), instanceTree, dataItemList);
-
-        //inform me on any sensor access
-        for (DataItem sensor : dataItemList) {
-            sensor.addOnSensorWriteListener(this);
-            sensor.addOnSensorReadListener(this);
-        }
-    }
-
-    @Override
-    public void onSensorRead(String mCollectionID, String mSensorID, DataItem dataItem) {
-
-    }
-
-    @Override
-    public void onSensorWrite(String collectionID, String sensorID, DataItem dataItem) {
-
-    }
-
-    @Override
-    public void onSensorChange(String collectionID, String sensorID,
-                               boolean valueRead, boolean valueTransported,
-                               final DataItem dataItem) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-//                mSensorValueTv.setText(dataItem.getName() + ": " + dataItem.getSensorValue());
-            }
-        });
-    }
-
     //starting the android service when the activity becomes visible
     @Override
     protected void onStart() {
@@ -360,7 +310,6 @@ public class SimpleLightActivity extends ActivityWithBusDeliverer implements Pro
     //stopping the upnp service when the activity is invisible
     @Override
     protected void onStop() {
-        mCling.stop();
         super.onStop();
     }
 }

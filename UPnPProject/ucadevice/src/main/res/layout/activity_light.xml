@@ -13,7 +13,7 @@
 
     <TextView
         android:id="@+id/light_status"
-        android:text="Light is: ON"
+        android:text="Light is: ????"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"

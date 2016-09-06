@@ -1,5 +1,6 @@
 package com.comarch.android.upnp.ibcdemo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -8,6 +9,7 @@ import android.widget.Toast;
 import com.comarch.android.upnp.ibcdemo.busevent.ConnectionStateChangedEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.DeviceListRefreshRequestEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.connector.connection.LocalConnectionStateChangedEvent;
+import com.comarch.android.upnp.ibcdemo.busevent.connector.connection.XmppConnectionCloseRequestEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.connector.connection.XmppConnectionOpenRequestEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.connector.connection.XmppConnectionStateChangedEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.connector.data.UpdateDeviceListEvent;
@@ -31,6 +33,7 @@ import com.tpvision.sensormgt.datastore.DataStoreInterfaceImpl;
 import com.tpvision.sensormgt.devicelib.ClingUPnPInit;
 
 import org.fourthline.cling.android.AndroidUpnpService;
+import org.fourthline.cling.android.AndroidUpnpServiceImpl;
 import org.fourthline.cling.binding.LocalServiceBindingException;
 import org.fourthline.cling.binding.annotations.AnnotationLocalServiceBinder;
 import org.fourthline.cling.model.DefaultServiceManager;
@@ -85,7 +88,6 @@ public class BodyTempSensorActivity extends ActivityWithBusDeliverer implements 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         // Stop monitoring the power switch
         LocalService<SwitchPower> switchPowerService = getSwitchPowerService();
         if (switchPowerService != null)
@@ -163,26 +165,12 @@ public class BodyTempSensorActivity extends ActivityWithBusDeliverer implements 
         }
     }
 
-//    protected void setLightbulb(final boolean on) {
-//        runOnUiThread(new Runnable() {
-//            public void run() {
-//                ((TextView) findViewById(R.id.status_tv)).setText("Light is on? " + on);
-//            }
-//        });
-//    }
-
-//    protected void setDimmingLevel(final UnsignedIntegerOneByte dimmmingLevel) {
-//        runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                ((TextView) findViewById(R.id.dimming_tv)).setText("Dimming: " + dimmmingLevel);
-//            }
-//        });
-//    }
-
     @Override
     protected void onPause() {
         super.onPause();
+        stopService(new Intent(this, AndroidUpnpServiceImpl.class));
+        UtilClass.upnpService.get().shutdown();
+        getBus().post(new XmppConnectionCloseRequestEvent());
         getBus().unregister(this);
     }
 
@@ -196,12 +184,16 @@ public class BodyTempSensorActivity extends ActivityWithBusDeliverer implements 
     private void startXMPP() {
         final String deviceName = "~DeviceName"; // MainDevice.getDetails().getFriendlyName();
 
+        Log.i("startXMPP", "Time: " + System.nanoTime());
+
         getBus().postSticky(
                 new XmppConnectionOpenRequestEvent(
                         "test@brigadeiro.local",
                         "test",
-                        "10.90.90.253",
+//                        "10.90.90.253",
 //                        "192.168.31.132",
+//                        "10.100.100.124",
+                        "10.90.90.253",
                         5222,
                         "pubsub.brigadeiro.local",
                         deviceName

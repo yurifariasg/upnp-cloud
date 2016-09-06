@@ -1,6 +1,8 @@
 package com.comarch.android.upnp.ibcdemo;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -8,6 +10,7 @@ import android.widget.Toast;
 import com.comarch.android.upnp.ibcdemo.busevent.ConnectionStateChangedEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.DeviceListRefreshRequestEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.connector.connection.LocalConnectionStateChangedEvent;
+import com.comarch.android.upnp.ibcdemo.busevent.connector.connection.XmppConnectionCloseRequestEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.connector.connection.XmppConnectionOpenRequestEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.connector.connection.XmppConnectionStateChangedEvent;
 import com.comarch.android.upnp.ibcdemo.busevent.connector.data.UpdateDeviceListEvent;
@@ -31,6 +34,7 @@ import com.tpvision.sensormgt.datastore.DataStoreInterfaceImpl;
 import com.tpvision.sensormgt.devicelib.ClingUPnPInit;
 
 import org.fourthline.cling.android.AndroidUpnpService;
+import org.fourthline.cling.android.AndroidUpnpServiceImpl;
 import org.fourthline.cling.binding.LocalServiceBindingException;
 import org.fourthline.cling.binding.annotations.AnnotationLocalServiceBinder;
 import org.fourthline.cling.model.DefaultServiceManager;
@@ -56,8 +60,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class TempSensorActivity extends ActivityWithBusDeliverer implements PropertyChangeListener,
-        SensorReadListener, SensorWriteListener, DeviceChangedListener, SensorChangeListener {
+public class TempSensorActivity extends ActivityWithBusDeliverer implements SensorReadListener,
+        SensorWriteListener, DeviceChangedListener, SensorChangeListener {
 
     private UDN udn = new UDN(UUID.randomUUID());
 
@@ -66,6 +70,8 @@ public class TempSensorActivity extends ActivityWithBusDeliverer implements Prop
 
     @BindView(R.id.sensor_value_tv)
     TextView mSensorValueTv;
+
+    private static boolean shouldRepeat = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,111 +82,40 @@ public class TempSensorActivity extends ActivityWithBusDeliverer implements Prop
         // Stuff from SensorManagement Device
         mDataStoreInterfaceImpl = new DataStoreInterfaceImpl(getContentResolver());
         setupSensorNetwork();
+
+
+        if (shouldRepeat) {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setResult(1);
+                    finish();
+                }
+            }, 20000);
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
-        // Stop monitoring the power switch
-        LocalService<SwitchPower> switchPowerService = getSwitchPowerService();
-        if (switchPowerService != null)
-            switchPowerService.getManager().getImplementation().getPropertyChangeSupport()
-                    .removePropertyChangeListener(this);
-
     }
-
-    protected LocalService<SwitchPower> getSwitchPowerService() {
-        if (UtilClass.upnpService == null)
-            return null;
-
-        LocalDevice binaryLightDevice;
-        if ((binaryLightDevice = UtilClass.upnpService.getRegistry().getLocalDevice(udn, true)) == null)
-            return null;
-
-        return (LocalService<SwitchPower>)
-                binaryLightDevice.findService(new UDAServiceType("SwitchPower", 1));
-    }
-
-    protected LocalService<Dimming> getDimmingService() {
-        if (UtilClass.upnpService == null)
-            return null;
-
-        LocalDevice binaryLightDevice;
-        if ((binaryLightDevice = UtilClass.upnpService.getRegistry().getLocalDevice(udn, true)) == null)
-            return null;
-
-        return (LocalService<Dimming>)
-                binaryLightDevice.findService(new UDAServiceType("Dimming", 1));
-    }
-
-    protected LocalDevice createDevice()
-            throws ValidationException, LocalServiceBindingException {
-
-        DeviceType type =
-                new UDADeviceType("DimmableLight", 1);
-
-        DeviceDetails details =
-                new DeviceDetails(
-                        "The Cloud Light",
-                        new ManufacturerDetails("Comarch"),
-                        new ModelDetails("Dimmable Light")
-                );
-
-        LocalService<SwitchPower> service =
-                new AnnotationLocalServiceBinder().read(SwitchPower.class);
-
-        LocalService<Dimming> dimmingService =
-                new AnnotationLocalServiceBinder().read(Dimming.class);
-
-        service.setManager(
-                new DefaultServiceManager<>(service, SwitchPower.class)
-        );
-
-        dimmingService.setManager(
-                new DefaultServiceManager<>(dimmingService, Dimming.class));
-
-        LocalService[] services = new LocalService[] {service, dimmingService};
-
-        return new LocalDevice(
-                new DeviceIdentity(udn),
-                type,
-                details,
-                services
-        );
-    }
-
-    public void propertyChange(PropertyChangeEvent event) {
-        // This is regular JavaBean eventing, not UPnP eventing!
-        if (event.getPropertyName().equals("status")) {
-//            setLightbulb((Boolean) event.getNewValue());
-        } else if (event.getPropertyName().equals("loadLevelStatus")) {
-//            setDimmingLevel((UnsignedIntegerOneByte) event.getNewValue());
-        }
-    }
-
-//    protected void setLightbulb(final boolean on) {
-//        runOnUiThread(new Runnable() {
-//            public void run() {
-//                ((TextView) findViewById(R.id.status_tv)).setText("Light is on? " + on);
-//            }
-//        });
-//    }
-
-//    protected void setDimmingLevel(final UnsignedIntegerOneByte dimmmingLevel) {
-//        runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                ((TextView) findViewById(R.id.dimming_tv)).setText("Dimming: " + dimmmingLevel);
-//            }
-//        });
-//    }
 
     @Override
     protected void onPause() {
         super.onPause();
+        disconnect();
         getBus().unregister(this);
+        Log.i("startXMPP", "DisconnectTime: " + System.currentTimeMillis());
     }
+
+    private void disconnect() {
+        stopService(new Intent(this, AndroidUpnpServiceImpl.class));
+        UtilClass.upnpService.get().shutdown();
+        getBus().post(new XmppConnectionCloseRequestEvent());
+        UtilClass.mDisconnectXMPPTimes.add(System.currentTimeMillis());
+    }
+
+
 
     @Override
     protected void onResume() {
@@ -192,11 +127,16 @@ public class TempSensorActivity extends ActivityWithBusDeliverer implements Prop
     private void startXMPP() {
         final String deviceName = UtilClass.MainDevice.getDetails().getFriendlyName();
 
+//        Log.i("startXMPP", "StartTime: " + System.currentTimeMillis());
+        UtilClass.mStartXMPPTimes.add(System.currentTimeMillis());
+
         getBus().postSticky(
                 new XmppConnectionOpenRequestEvent(
                         "test@brigadeiro.local",
                         "test",
 //                        "192.168.31.132",
+//                        "10.90.90.253",
+//                        "10.100.100.124",
                         "10.90.90.253",
                         5222,
                         "pubsub.brigadeiro.local",

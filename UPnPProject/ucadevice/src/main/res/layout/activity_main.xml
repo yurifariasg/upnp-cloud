@@ -30,6 +30,14 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/body_temp_bt"
         android:layout_centerHorizontal="true"
+        android:visibility="gone"
         android:text="Simple Light"/>
+
+    <CheckBox
+        android:id="@+id/repeat_cb"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="Should Repeat?"/>
 
 </RelativeLayout>

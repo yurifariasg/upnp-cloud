@@ -136,6 +136,8 @@ public class CLPacketListener implements PacketListenerWithFilter {
                 }
             }
 
+            Log.i("ProcessSoapResponseIQ", "Sending back response...");
+            Log.i("ProcessSoapResponseIQ", "Args: " + args);
             SoapResultRequestIQ sendPacket = new SoapResultRequestIQ(action.getName() + "Response", iq.getActionName(), args);
             sendPacket.setPacketID(packet.getPacketID());
             sendPacket.setTo(packet.getFrom());
